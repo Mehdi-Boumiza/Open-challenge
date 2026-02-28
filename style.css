@@ -1,0 +1,470 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Main Container */
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    max-width: 900px;
+    width: 100%;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Input Section */
+.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* File Input */
+.file-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.file-input-wrapper label {
+    display: inline-block;
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-weight: 600;
+}
+
+.file-input-wrapper label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+#imageInput {
+    display: none;
+}
+
+#fileCount {
+    color: #666;
+    font-size: 0.9em;
+    padding-left: 5px;
+}
+
+/* Select Wrapper */
+.select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.select-wrapper label {
+    font-weight: 600;
+    color: #333;
+    min-width: 60px;
+}
+
+#languageSelect {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    background: white;
+}
+
+#languageSelect:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Analyze Button */
+#analyzeBtn {
+    padding: 15px 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#analyzeBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+#analyzeBtn:active {
+    transform: translateY(0);
+}
+
+#analyzeBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Loading Indicator */
+.loading {
+    text-align: center;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.loading.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loadingText {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Results Container */
+#resultsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Result Card */
+.result-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Certain Prediction - Green Border */
+.result-card.certain {
+    border-color: #4caf50;
+    background: #f1f8f4;
+}
+
+/* Uncertain Prediction - Orange Border */
+.result-card.uncertain {
+    border-color: #ff9800;
+    background: #fff8f0;
+}
+
+.result-card h3 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    word-break: break-word;
+}
+
+.result-card .info-row {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.result-card .label {
+    font-weight: 600;
+    color: #555;
+}
+
+.result-card .value {
+    color: #333;
+}
+
+.result-card .disease {
+    font-size: 1.1em;
+    color: #667eea;
+    font-weight: 700;
+}
+
+.result-card .confidence {
+    font-weight: 700;
+}
+
+.result-card .confidence.high {
+    color: #4caf50;
+}
+
+.result-card .confidence.low {
+    color: #ff9800;
+}
+
+.result-card .tips {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.result-card .tips-title {
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 8px;
+}
+
+.result-card .tips-content {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Arabic RTL Support */
+.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    #resultsContainer {
+        grid-template-columns: 1fr;
+    }
+}
+/* ===== Farmer Warning & Disclaimer ===== */
+.leaf-warning,
+.disclaimer {
+    background: #fff3cd;
+    color: #856404;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: 12px;
+    text-align: center;
+}
+
+/* ===== Severity Color Coding ===== */
+.severity-high {
+    color: #b00020;
+    font-weight: 800;
+}
+
+.severity-moderate {
+    color: #e67e22;
+    font-weight: 800;
+}
+
+.severity-low {
+    color: #2e7d32;
+    font-weight: 800;
+}
+
+/* ===== Agronomist Escalation Block ===== */
+.escalation {
+    background: #fdecea;
+    color: #611a15;
+    padding: 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-top: 15px;
+    border-left: 6px solid #b00020;
+}
+
+/* ===== Expandable Details (Farmer Friendly) ===== */
+details {
+    margin-top: 12px;
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+details summary {
+    font-weight: 700;
+    cursor: pointer;
+    color: #667eea;
+    outline: none;
+}
+
+details summary::-webkit-details-marker {
+    display: none;
+}
+
+/* ===== Mobile-First Overrides ===== */
+@media (max-width: 768px) {
+
+    body {
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .container {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .file-input-wrapper label {
+        font-size: 18px;
+        padding: 16px;
+    }
+
+    #analyzeBtn {
+        width: 100%;
+        font-size: 20px;
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .result-card {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .result-card h3 {
+        font-size: 1.2em;
+    }
+
+    .result-card .info-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .result-card .label {
+        font-size: 0.95em;
+    }
+
+    .result-card .value {
+        font-size: 1.15em;
+    }
+
+    .tips,
+    .tips-content {
+        font-size: 1.05em;
+    }
+}
+/* ===== Severity Banner Styling with Icons ===== */
+.severity-banner {
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 1.2em;
+    margin: 10px 0;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Color codes for severity banners */
+.severity-high {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 6px solid #b00020;
+}
+
+.severity-medium {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 6px solid #e67e22;
+}
+
+.severity-low {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 6px solid #2e7d32;
+}
+
+/* Optional: make icon slightly larger */
+.severity-banner::before {
+    font-size: 1.5em;
+}
+
+.preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 2px solid #ccc;
+}

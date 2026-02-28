@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wheat Disease Detection</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <h1 id="mainTitle">Détection des Maladies du Blé</h1>
+        <p id="photoHint"></p>
+        
+        <!-- Input Section -->
+        <div class="input-section">
+            <!-- File Input for Multiple Images -->
+            <div class="file-input-wrapper">
+                <label for="imageInput" id="fileLabel">Sélectionner des images</label>
+                <input 
+                    type="file"
+                    id="imageInput"
+                    accept="image/*"
+                    capture="environment"
+                    multiple
+                >
+                <span id="fileCount">Aucun fichier sélectionné</span>
+            </div>
+            <div id="previewContainer" class="preview-container"></div>
+            <div class="leaf-warning" id="leafWarning"></div>
+            
+            <!-- Language Selection -->
+            <div class="select-wrapper">
+                <label for="languageSelect" id="langLabel">Langue:</label>
+                <select id="languageSelect">
+                    <option value="fr">Français</option>
+                    <option value="ar">العربية</option>
+                </select>
+            </div>
+            
+            <!-- Analyze Button -->
+            <button id="analyzeBtn">🔍 تحليل الصورة</button>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading hidden">
+            <div class="spinner"></div>
+            <p id="loadingText">Analyse en cours...</p>
+        </div>
+        
+        <!-- Results Section -->
+        <div id="results">
+            <h2 id="resultsTitle"></h2>
+            <p class="results-note" id="resultsNote"></p>
+            <div id="resultsContainer" class="results-container">
+                <!-- Individual diagnosis cards will be injected here by script.js -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
