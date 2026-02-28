@@ -302,8 +302,11 @@ async def health_check():
     name="frontend"
 #)
 
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
+app.mount(
+    "/",
+    StaticFiles(directory=os.path.join(os.getcwd(), "frontend"), html=True),
+    name="frontend"
+)
 
 if __name__ == "__main__":
     import uvicorn
