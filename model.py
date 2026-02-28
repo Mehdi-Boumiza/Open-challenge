@@ -6,20 +6,25 @@ from PIL import Image
 from typing import Dict, List
 import logging
 from fastapi import HTTPException
-import os # Added for path checking
-
+import os
+import requests  # Ensure 'requests' is in your requirements.txt
 from diseases import DISEASES
 
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-# Changed to be passed to load_model instead of hardcoded
-# MODEL_PATH = "backend/models/best_booststage2.pth" 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+# Determine device (CPU for Vercel)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class WheatDiseaseModel:
     def __init__(self):
         self.model = None
+        # Vercel allows writing files only to /tmp
+        self.model_path = "/tmp/best_booststage2.pth" 
+        self.dropbox_url = "https://www.dropbox.com/scl/fi/ooy7h6coji64o27fei8s6/best_booststage2.pth?rlkey=belvhsd0cfakqnetqc2xvqiit&st=fj1y8mqa&dl=1"
 
+        # Define image transformations
         self.transform = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
@@ -29,46 +34,63 @@ class WheatDiseaseModel:
             )
         ])
 
-    # 1. ADD 'self' AS THE FIRST ARGUMENT
-    # 2. ADD 'model_path' AS THE SECOND ARGUMENT
-    def load_model(self, model_path: str):
+    def load_model(self):
+        """
+        Downloads model from Dropbox to /tmp if not present, 
+        then loads it into memory.
+        """
         try:
-            # 3. Check if path exists
-            if not os.path.exists(model_path):
-                raise FileNotFoundError(f"Model file not found at {model_path}")
+            # 1. Download if not exists in /tmp
+            if not os.path.exists(self.model_path):
+                logger.info(f"Downloading model from Dropbox to {self.model_path}...")
+                response = requests.get(self.dropbox_url)
+                if response.status_code != 200:
+                    raise Exception(f"Failed to download model. Status code: {response.status_code}")
+                
+                with open(self.model_path, 'wb') as f:
+                    f.write(response.content)
+                logger.info("Download complete.")
+            else:
+                logger.info("Model already exists in /tmp, skipping download.")
 
-            logger.info(f"Loading model from {model_path}...")
+            # 2. Load the model into memory
+            logger.info(f"Loading model into memory from {self.model_path}...")
             
-            # Using HuggingFace model structure based on your code
+            # Initialize model architecture based on HuggingFace Vit
             model = ViTForImageClassification.from_pretrained(
                 'google/vit-base-patch16-224',
                 num_labels=len(DISEASES), # Dynamically set labels
                 ignore_mismatched_sizes=True
             )
-            model.load_state_dict(torch.load(model_path, map_location=device))
+            
+            # Load trained weights
+            model.load_state_dict(torch.load(self.model_path, map_location=device))
             model.to(device)
             model.eval()
 
-            # 4. ASSIGN TO SELF
             self.model = model 
-            logger.info("Model loaded successfully")
+            logger.info("Model loaded successfully into memory.")
         
         except Exception as e:
             logger.error(f"Failed to load model: {e}")
             raise HTTPException(status_code=500, detail=f"Model loading failed: {e}")
     
     def predict(self, image: Image.Image) -> Dict:
+        """
+        Predicts disease from image and returns top 3 predictions.
+        """
         if self.model is None:
-            raise HTTPException(status_code=500, detail="Model not loaded")
+            raise HTTPException(status_code=500, detail="Model not loaded. Call load_model() first.")
 
         try:
+            # Preprocess image
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
             img_tensor = self.transform(image).unsqueeze(0).to(device)
 
+            # Run inference
             with torch.no_grad():
-                # For HuggingFace models, the output is often a Dict-like object
                 outputs = self.model(img_tensor)
                 logits = outputs.logits # Get logits from the ViT output
                 probabilities = torch.softmax(logits, dim=1)
@@ -78,6 +100,7 @@ class WheatDiseaseModel:
             disease_id = predicted.item()
             confidence_score = confidence.item() * 100
 
+            # Get Top 3 predictions
             top3_probs, top3_indices = torch.topk(probabilities, 3)
 
             top3_predictions: List[Dict] = [
