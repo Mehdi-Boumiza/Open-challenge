@@ -8,7 +8,7 @@ import logging
 from fastapi import HTTPException
 import os
 import requests  # Ensure 'requests' is in your requirements.txt
-from backend.diseases import DISEASES
+from diseases import DISEASES
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
