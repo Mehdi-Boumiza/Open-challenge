@@ -13,34 +13,15 @@ import torch
 from model import WheatDiseaseModel
 from diseases import DISEASES
 
-
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-# Dropbox URL for your model
-MODEL_URL = "https://www.dropbox.com/scl/fi/ooy7h6coji64o27fei8s6/best_booststage2.pth?rlkey=belvhsd0cfakqnetqc2xvqiit&st=hhsmcc3r&dl=1"
-
-# Local path to cache model
-LOCAL_MODEL_PATH = "best_booststage2.pth"
-
-
-
-# Download model if it doesn't exist locally
-if not os.path.exists(LOCAL_MODEL_PATH):
-    print("Downloading model from Dropbox...")
-    r = requests.get(MODEL_URL, stream=True)
-    r.raise_for_status()  # Raise error if download fails
-    with open(LOCAL_MODEL_PATH, "wb") as f:
-        for chunk in r.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
-    print("Model downloaded successfully.")
-
-
-
+# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Dropbox URL for your model
+MODEL_URL = "https://www.dropbox.com/scl/fi/ooy7h6coji64o27fei8s6/best_booststage2.pth?rlkey=belvhsd0cfakqnetqc2xvqiit&st=fj1y8mqa&dl=1"
+
+# Writable location on Vercel
+LOCAL_MODEL_PATH = "/tmp/best_booststage2.pth"
 
 app = FastAPI(
     title="Wheat Disease Detection",
@@ -50,11 +31,24 @@ app = FastAPI(
  
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production: specify  frontend domain
+    allow_origins=["*"],  # In production: specify frontend domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Initialize the model instance globally
+wheat_model = WheatDiseaseModel()
+
+# --- CRITICAL: Load model on startup ---
+@app.on_event("startup")
+async def startup_event():
+    try:
+        # The load_model() method now handles downloading to /tmp and loading
+        wheat_model.load_model()
+        logger.info("✅ Model loaded successfully on startup!")
+    except Exception as e:
+        logger.error(f"❌ Model failed to load: {e}")
 
 def get_category(disease_info):
     category = disease_info.get("category", "").lower()
@@ -69,10 +63,6 @@ def get_category(disease_info):
     }
 
     return mapping.get(category, ("Autres maladies", "أمراض أخرى"))
-
-
-
-
 
 # Multiple image upload endpoint
 @app.post("/api/analyze-multiple")
@@ -142,10 +132,6 @@ async def analyze_multiple_wheat_diseases(files: List[UploadFile] = File(...)):
             })
     return {"results": results}
 
-
-
-
-
 @app.post("/api/analyze")
 async def analyze_wheat_disease(file: UploadFile = File(...)):
 
@@ -188,7 +174,7 @@ async def analyze_wheat_disease(file: UploadFile = File(...)):
                 "prevention": [],
                 "prevention_ar": [],
             }
-        
+    
         disease_info = DISEASES[disease_id]
         category_fr, category_ar = get_category(disease_info)
         # If root disease, do not show as a disease
@@ -218,9 +204,9 @@ async def analyze_wheat_disease(file: UploadFile = File(...)):
                 "prevention": [],
                 "prevention_ar": [],
             }
-        
+    
         is_critical = disease_info["severity"] == "high"
-        
+    
         response = {
             "success": True,
             "uncertain": False,
@@ -249,43 +235,24 @@ async def analyze_wheat_disease(file: UploadFile = File(...)):
 
             "top3_predictions": prediction["top3_predictions"],
         }
-        
+    
         if 70 <= confidence < 80:
             response["warning_fr"] = "Confiance modérée. Vérification par un expert recommandée."
             response["warning_ar"] = "ثقة متوسطة. يُنصح بالتحقق من قبل خبير."
-        
+    
         if is_critical:
             response["urgent_note_fr"] = " MALADIE CRITIQUE Action immédiate recommandée"
             response["urgent_note_ar"] = "مرض خطير يُنصح بإجراء فوري"
-        
+    
         logger.info(f" {disease_info['name_fr']}: {confidence:.1f}%")
-        
+    
         return response
-        
+    
     except Exception as e:
         logger.error(f" Analysis failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-wheat_model = WheatDiseaseModel()
-
 CONFIDENCE_THRESHOLD = 70.0
-
-
-@app.on_event("startup")
-async def startup_event():
-    try:
-        # Check if the model file actually exists before loading
-        import os
-        model_path = "/Users/mehdiboumiza/website for wheat project/backend/models/best_booststage2.pth"
-        if not os.path.exists(model_path):
-            logger.error(f"Model file not found at {model_path}")
-            return # Don't raise, let the app start but fail predictions
-
-        wheat_model.load_model(model_path)
-        logger.info("✅ Model loaded successfully on startup!")
-    except Exception as e:
-        logger.error(f"❌ Model failed to load: {e}")
-
 
 @app.get("/api/info")
 async def api_info():
@@ -298,8 +265,6 @@ async def api_info():
         "languages": ["Français", "العربية"],
         "accuracy": "92.65%"
     }
-
-
 
 @app.get("/api/diseases")
 async def get_all_diseases():
@@ -321,19 +286,20 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": wheat_model.model is not None,
-        "device": str(wheat_model.model.device) if wheat_model.model else "model not loaded",
+        "device": str(device) if wheat_model.model else "model not loaded",
         "gpu_available": torch.cuda.is_available()
     }
 
+# Mount the frontend
+# Note: For Vercel deployment, ensure this path is correct relative to the root
 app.mount(
     "/",
     StaticFiles(
-        directory="/Users/mehdiboumiza/website for wheat project/frontend",
+        directory="frontend",
         html=True
     ),
     name="frontend"
 )
-
 
 if __name__ == "__main__":
     import uvicorn
