@@ -292,14 +292,14 @@ async def health_check():
 
 # Mount the frontend
 # Note: For Vercel deployment, ensure this path is correct relative to the root
-app.mount(
+#app.mount(
     "/",
     StaticFiles(
         directory="frontend",
         html=True
     ),
     name="frontend"
-)
+#)
 
 if __name__ == "__main__":
     import uvicorn
