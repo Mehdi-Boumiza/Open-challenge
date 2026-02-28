@@ -5,9 +5,39 @@ import io
 import logging
 from fastapi.staticfiles import StaticFiles
 from typing import List
+import os
+import requests
+from io import BytesIO
+import torch
 
 from model import WheatDiseaseModel
 from diseases import DISEASES
+
+
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Dropbox URL for your model
+MODEL_URL = "https://www.dropbox.com/scl/fi/ooy7h6coji64o27fei8s6/best_booststage2.pth?rlkey=belvhsd0cfakqnetqc2xvqiit&st=hhsmcc3r&dl=1"
+
+# Local path to cache model
+LOCAL_MODEL_PATH = "backend/models/best_booststage2.pth"
+
+# Ensure models folder exists
+os.makedirs("models", exist_ok=True)
+
+# Download model if it doesn't exist locally
+if not os.path.exists(LOCAL_MODEL_PATH):
+    print("Downloading model from Dropbox...")
+    r = requests.get(MODEL_URL, stream=True)
+    r.raise_for_status()  # Raise error if download fails
+    with open(LOCAL_MODEL_PATH, "wb") as f:
+        for chunk in r.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+    print("Model downloaded successfully.")
+
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
