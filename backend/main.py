@@ -12,8 +12,9 @@ import torch
 
 from backend.model import WheatDiseaseModel
 from backend.diseases import DISEASES
+from fastapi.staticfiles import StaticFiles
 
-# Setup logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 device  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -300,6 +301,9 @@ async def health_check():
     ),
     name="frontend"
 #)
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
 
 if __name__ == "__main__":
     import uvicorn
