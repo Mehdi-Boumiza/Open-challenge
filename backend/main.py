@@ -10,8 +10,8 @@ import requests
 from io import BytesIO
 import torch
 
-from model import WheatDiseaseModel
-from diseases import DISEASES
+from backend.model import WheatDiseaseModel
+from backend.diseases import DISEASES
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
