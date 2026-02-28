@@ -16,7 +16,7 @@ from backend.diseases import DISEASES
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+device  = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Dropbox URL for your model
 MODEL_URL = "https://www.dropbox.com/scl/fi/ooy7h6coji64o27fei8s6/best_booststage2.pth?rlkey=belvhsd0cfakqnetqc2xvqiit&st=fj1y8mqa&dl=1"
 
@@ -286,7 +286,7 @@ async def health_check():
     return {
         "status": "healthy",
         "model_loaded": wheat_model.model is not None,
-        "device": str(device) if wheat_model.model else "model not loaded",
+        "device": str(device) ,
         "gpu_available": torch.cuda.is_available()
     }
 
