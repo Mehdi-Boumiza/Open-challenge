@@ -21,10 +21,9 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_URL = "https://www.dropbox.com/scl/fi/ooy7h6coji64o27fei8s6/best_booststage2.pth?rlkey=belvhsd0cfakqnetqc2xvqiit&st=hhsmcc3r&dl=1"
 
 # Local path to cache model
-LOCAL_MODEL_PATH = "backend/models/best_booststage2.pth"
+LOCAL_MODEL_PATH = "best_booststage2.pth"
 
-# Ensure models folder exists
-os.makedirs("models", exist_ok=True)
+
 
 # Download model if it doesn't exist locally
 if not os.path.exists(LOCAL_MODEL_PATH):
