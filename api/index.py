@@ -133,7 +133,7 @@ async def analyze_multiple_wheat_diseases(files: List[UploadFile] = File(...)):
             })
     return {"results": results}
 
-@app.post("/api/analyze")
+@app.post("/api")
 async def analyze_wheat_disease(file: UploadFile = File(...)):
 
     if not file.content_type.startswith("image/"):

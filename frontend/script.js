@@ -169,7 +169,7 @@ analyzeBtn.addEventListener('click', async () => {
         formData.append('file', files[0]);
         
         // Send request to backend
-        const response = await fetch('/api/analyze', {
+        const response = await fetch('/api', {
             method: 'POST',
             body: formData
         });
