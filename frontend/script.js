@@ -1,3 +1,7 @@
+const RAILWAY_API_URL = "open-challenge-production.up.railway.app";
+
+
+
 const translations = {
     fr: {
         title: "Détection des Maladies du Blé",
@@ -169,7 +173,7 @@ analyzeBtn.addEventListener('click', async () => {
         formData.append('file', files[0]);
         
         // Send request to backend
-        const response = await fetch('/api', {
+        const response = await fetch(`${RAILWAY_API_URL}/api/analyze`, {
             method: 'POST',
             body: formData
         });
