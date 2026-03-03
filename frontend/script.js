@@ -1,5 +1,4 @@
-const RAILWAY_API_URL = "open-challenge-production.up.railway.app";
-
+const RAILWAY_API_URL = "https://open-challenge-production.up.railway.app";
 
 
 const translations = {
